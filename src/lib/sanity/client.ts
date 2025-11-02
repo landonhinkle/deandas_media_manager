@@ -13,3 +13,8 @@ export const client = createClient({
   perspective: token ? 'previewDrafts' : 'published',
   stega: { enabled: false },
 })
+
+// Helper for server-side data fetching
+export async function sanityFetch<T = unknown>({ query, params = {} }: { query: string; params?: Record<string, unknown> }): Promise<T> {
+  return client.fetch<T>(query, params)
+}
