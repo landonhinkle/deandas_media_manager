@@ -1,7 +1,7 @@
 import { sanityFetch } from '@/lib/sanity/client'
 import Link from 'next/link'
-import { urlFor } from '@/lib/sanity/image'
 import Image from 'next/image'
+import { RECENT_MEDIA } from '@/lib/sanity/queries'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -38,29 +38,7 @@ interface MediaItem {
 // Fetch recent published media and categories for the home page
 async function getHomeData() {
   const recentMedia = await sanityFetch<MediaItem[]>({
-    query: `*[_type == "media" && !(_id in path("drafts.**"))] | order(_createdAt desc) [0...6] {
-      _id,
-      title,
-      description,
-      file {
-        asset-> {
-          _id,
-          url,
-          mimeType,
-          metadata {
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      },
-      categories[]-> {
-        _id,
-        title,
-        slug
-      }
-    }`,
+    query: RECENT_MEDIA,
   })
 
   const categories = await sanityFetch<Category[]>({
@@ -121,7 +99,7 @@ export default async function HomePage() {
             {recentMedia.map((item) => (
               <Link
                 key={item._id}
-                href={`/media/${item._id}`}
+                href={`/media_player?id=${item._id}`}
                 className="group bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow overflow-hidden"
               >
                 {/* Media Preview */}
@@ -129,9 +107,10 @@ export default async function HomePage() {
                   <div className="relative aspect-video bg-gray-100">
                     {item.file.asset.mimeType?.startsWith('image/') ? (
                       <Image
-                        src={urlFor(item.file.asset).width(600).height(400).url()}
+                        src={item.file.asset.url}
                         alt={item.title || 'Media item'}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
