@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { sanityFetch } from '@/lib/sanity/client'
 import { MEDIA_BY_ID } from '@/lib/sanity/queries'
+import VideoPlayer from '@/components/media/VideoPlayer'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -56,7 +57,9 @@ export default async function MediaPlayerPage({ searchParams }: { searchParams: 
   const mime = asset.mimeType || ''
 
   const isAudio = mime.startsWith('audio/')
-  const isVideo = mime.startsWith('video/')
+  const isVideo = mime.startsWith('video/') || 
+    /\.(mp4|mov|avi|mkv|webm|ogg|m4v|3gp|flv|wmv)$/i.test(asset.originalFilename || '') ||
+    ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska', 'video/webm', 'video/ogg'].includes(mime)
   const isImage = mime.startsWith('image/')
   const isTextLike =
     mime.startsWith('text/') ||
@@ -113,12 +116,11 @@ export default async function MediaPlayerPage({ searchParams }: { searchParams: 
               </div>
             )}
             {isVideo && (
-              <div className="aspect-video bg-black">
-                <video controls className="w-full h-full">
-                  <source src={asset.url} type={mime} />
-                  Your browser does not support the video element.
-                </video>
-              </div>
+              <VideoPlayer 
+                src={asset.url} 
+                mimeType={mime} 
+                filename={asset.originalFilename} 
+              />
             )}
             {isImage && (
               <div className="aspect-video bg-black">
@@ -152,6 +154,37 @@ export default async function MediaPlayerPage({ searchParams }: { searchParams: 
               Download{asset.originalFilename ? ` (${asset.originalFilename})` : ''}
             </a>
             <span className="text-xs text-gray-500">{mime}</span>
+          </div>
+          
+          {/* AVI-specific help */}
+          {(mime.includes('avi') || asset.originalFilename?.toLowerCase().includes('.avi')) && (
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h3 className="text-sm font-medium text-yellow-800 mb-2">AVI Format Notice</h3>
+              <p className="text-sm text-yellow-700 mb-2">
+                AVI files use different codecs that may not be supported by web browsers. Common issues:
+              </p>
+              <ul className="text-xs text-yellow-600 list-disc list-inside space-y-1">
+                <li><strong>DivX/XviD:</strong> Not supported in browsers</li>
+                <li><strong>H.264:</strong> Should work in most browsers</li>
+                <li><strong>MJPEG:</strong> Limited browser support</li>
+              </ul>
+              <p className="text-xs text-yellow-600 mt-2">
+                If the video doesn&apos;t play, try downloading and playing in VLC or converting to MP4.
+              </p>
+            </div>
+          )}
+
+          {/* Debug info for troubleshooting */}
+          <div className="mt-2 text-xs text-gray-400 border-t pt-2">
+            <p>File type detected: {isVideo ? 'Video' : isAudio ? 'Audio' : isImage ? 'Image' : 'Other'}</p>
+            <p>MIME type: {mime}</p>
+            <p>Filename: {asset.originalFilename || 'Unknown'}</p>
+            <p>Asset URL: {asset.url}</p>
+            {isVideo && (
+              <p className="mt-1 text-yellow-600">
+                ⚠️ Check browser console for video loading details
+              </p>
+            )}
           </div>
         </div>
 

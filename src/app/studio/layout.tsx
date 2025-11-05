@@ -279,7 +279,7 @@ export default function DashboardLayout({
                             : 'text-gray-600'
                         }`}
                       >
-                        Home
+                        Edit Home Page
                       </Link>
                     </li>
                     <li>
@@ -291,7 +291,7 @@ export default function DashboardLayout({
                             : 'text-gray-600'
                         }`}
                       >
-                        Media
+                        Edit Media Page
                       </Link>
                     </li>
                     <li>
@@ -303,7 +303,7 @@ export default function DashboardLayout({
                             : 'text-gray-600'
                         }`}
                       >
-                        Categories
+                        Edit Categories Page
                       </Link>
                     </li>
                     <li>
@@ -315,7 +315,7 @@ export default function DashboardLayout({
                             : 'text-gray-600'
                         }`}
                       >
-                        About
+                        Edit About Page
                       </Link>
                     </li>
                   </ul>
