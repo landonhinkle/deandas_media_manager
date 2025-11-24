@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Metadata } from 'next'
+import MobileNavigation from '@/components/public/MobileNavigation'
 
 export const metadata: Metadata = {
   title: 'Deandas Media | Home',
@@ -37,10 +38,10 @@ export default function PublicLayout({
                 Media
               </Link>
               <Link
-                href="/categories"
+                href="/media_player"
                 className="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors"
               >
-                Categories
+                Media Player
               </Link>
               <Link
                 href="/about"
@@ -50,15 +51,8 @@ export default function PublicLayout({
               </Link>
             </nav>
 
-            {/* Mobile menu button - placeholder */}
-            <button
-              className="md:hidden p-2 rounded-md hover:bg-gray-100"
-              aria-label="Open menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+            {/* Mobile Navigation */}
+            <MobileNavigation />
           </div>
         </div>
       </header>
@@ -95,8 +89,8 @@ export default function PublicLayout({
                   </Link>
                 </li>
                 <li>
-                  <Link href="/categories" className="hover:text-white transition-colors">
-                    Categories
+                  <Link href="/media_player" className="hover:text-white transition-colors">
+                    Media Player
                   </Link>
                 </li>
               </ul>

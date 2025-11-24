@@ -1,8 +1,9 @@
 import { sanityFetch } from '@/lib/sanity/client'
 import Link from 'next/link'
 import Image from 'next/image'
-import { RECENT_MEDIA } from '@/lib/sanity/queries'
+import { RECENT_MEDIA, MEDIA_LIST } from '@/lib/sanity/queries'
 import WelcomeHero from '@/components/public/WelcomeHero'
+import BrowseByCategory from '@/components/public/BrowseByCategory'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -38,25 +39,30 @@ interface MediaItem {
 
 // Fetch recent published media and categories for the home page
 async function getHomeData() {
-  const recentMedia = await sanityFetch<MediaItem[]>({
-    query: RECENT_MEDIA,
-  })
+  const [recentMedia, allMedia, categories] = await Promise.all([
+    sanityFetch<MediaItem[]>({
+      query: RECENT_MEDIA,
+    }),
+    sanityFetch<MediaItem[]>({
+      query: MEDIA_LIST,
+    }),
+    sanityFetch<Category[]>({
+      query: `*[_type == "category" && !(_id in path("drafts.**"))] | order(title asc) {
+        _id,
+        title,
+        slug,
+        description
+      }`,
+    })
+  ])
 
-  const categories = await sanityFetch<Category[]>({
-    query: `*[_type == "category" && !(_id in path("drafts.**"))] | order(title asc) {
-      _id,
-      title,
-      slug,
-      description
-    }`,
-  })
-
-  return { recentMedia, categories }
+  return { recentMedia, allMedia, categories }
 }
 
 export default async function HomePage() {
-  const { recentMedia, categories } = await getHomeData()
+  const { recentMedia, allMedia, categories } = await getHomeData()
   const safeRecent = (recentMedia ?? []).filter((m): m is MediaItem => !!m && typeof m._id === 'string')
+  const safeAllMedia = (allMedia ?? []).filter((m): m is MediaItem => !!m && typeof m._id === 'string')
   const safeCategories = (categories ?? []).filter((c): c is Category => !!c && typeof c._id === 'string')
 
   return (
@@ -137,25 +143,7 @@ export default async function HomePage() {
 
       {/* Categories Section */}
       {safeCategories.length > 0 && (
-        <section>
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Browse by Category</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {safeCategories.map((category) => (
-              <Link
-                key={category._id}
-                href={`/categories?slug=${encodeURIComponent(category.slug?.current || category._id)}`}
-                className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-6 text-center"
-              >
-                <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors mb-2">
-                  {category.title}
-                </h3>
-                {category.description && (
-                  <p className="text-xs text-gray-500 line-clamp-2">{category.description}</p>
-                )}
-              </Link>
-            ))}
-          </div>
-        </section>
+        <BrowseByCategory categories={safeCategories} allMedia={safeAllMedia} />
       )}
     </div>
   )

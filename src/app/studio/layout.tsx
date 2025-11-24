@@ -212,14 +212,14 @@ export default function DashboardLayout({
                     </li>
                     <li>
                       <Link
-                        href="/studio/preview/categories"
+                        href="/studio/preview/media_player"
                         className={`flex items-center py-1.5 pl-8 pr-4 text-sm hover:bg-indigo-100 hover:rounded-lg ${
-                          pathname === '/studio/preview/categories'
+                          pathname === '/studio/preview/media_player'
                             ? 'text-indigo-700 font-medium bg-indigo-100 rounded-lg'
                             : 'text-gray-600'
                         }`}
                       >
-                        Categories
+                        Media Player
                       </Link>
                     </li>
                     <li>
@@ -296,14 +296,14 @@ export default function DashboardLayout({
                     </li>
                     <li>
                       <Link
-                        href="/studio/layouts/categories"
+                        href="/studio/layouts/media_player"
                         className={`flex items-center py-1.5 pl-8 pr-4 text-sm hover:bg-indigo-100 hover:rounded-lg ${
-                          pathname === '/studio/layouts/categories'
+                          pathname === '/studio/layouts/media_player'
                             ? 'text-indigo-700 font-medium bg-indigo-100 rounded-lg'
                             : 'text-gray-600'
                         }`}
                       >
-                        Edit Categories Page
+                        Edit Media Player Page
                       </Link>
                     </li>
                     <li>

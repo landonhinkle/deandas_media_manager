@@ -12,10 +12,7 @@ export const CATEGORIES_WITH_COUNTS = `
 
 // All published media and text files, newest first
 export const MEDIA_LIST = `
-	[
-		*[_type == "media" && !(_id in path("drafts.**"))],
-		*[_type == "textFile" && !(_id in path("drafts.**"))]
-	] | order(_createdAt desc) {
+	*[(_type == "media" || _type == "textFile") && !(_id in path("drafts.**"))] | order(_createdAt desc) {
 		_id,
 		title,
 		description,
