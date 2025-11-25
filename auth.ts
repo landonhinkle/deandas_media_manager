@@ -1,7 +1,18 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcrypt'
-import { client } from '@/lib/sanity/client'
+import { createClient } from '@sanity/client'
+import { apiVersion, dataset, projectId } from '@/sanity/env'
+
+// Create a dedicated auth client to ensure we can query all user documents
+const authClient = createClient({
+  apiVersion,
+  dataset,
+  projectId,
+  useCdn: false, // Don't use CDN for auth queries
+  token: process.env.SANITY_API_READ_TOKEN,
+  perspective: 'published', // Query published documents
+})
 
 interface SanityUser {
   _id: string
@@ -28,7 +39,7 @@ export const authOptions: NextAuthOptions = {
         
         try {
           // Check Sanity users first
-          const user = await client.fetch<SanityUser | null>(
+          const user = await authClient.fetch<SanityUser | null>(
             `*[_type == "user" && email == $email][0]`,
             { email: credentials.email }
           )
