@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcrypt'
-import { client } from '@/lib/sanity/client'
+import { createClient } from '@sanity/client'
+import { apiVersion, dataset, projectId } from '@/sanity/env'
+
+// Create a write client for user creation
+const writeClient = createClient({
+  apiVersion,
+  dataset,
+  projectId,
+  useCdn: false,
+  token: process.env.SANITY_API_READ_TOKEN, // This needs to be a token with write permissions
+  perspective: 'published',
+})
 
 const MAX_USERS = 2
 
@@ -25,7 +36,7 @@ export async function POST(request: Request) {
     }
 
     // Check if max users reached
-    const existingUsers = await client.fetch<number>(
+    const existingUsers = await writeClient.fetch<number>(
       `count(*[_type == "user"])`
     )
 
@@ -37,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     // Check if email already exists
-    const existingUser = await client.fetch(
+    const existingUser = await writeClient.fetch(
       `*[_type == "user" && email == $email][0]`,
       { email }
     )
@@ -54,7 +65,7 @@ export async function POST(request: Request) {
     const passwordHash = await bcrypt.hash(password, saltRounds)
 
     // Create user in Sanity
-    const newUser = await client.create({
+    const newUser = await writeClient.create({
       _type: 'user',
       email,
       passwordHash,
@@ -97,7 +108,7 @@ export async function GET(request: Request) {
     }
 
     // Check if signup is still available
-    const existingUsers = await client.fetch<number>(
+    const existingUsers = await writeClient.fetch<number>(
       `count(*[_type == "user"])`
     )
 

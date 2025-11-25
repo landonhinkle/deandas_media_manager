@@ -33,9 +33,12 @@ export const authOptions: NextAuthOptions = {
             { email: credentials.email }
           )
 
+          console.log('Fetched user:', user ? 'Found' : 'Not found')
+
           if (user) {
             // Verify password against hash
             const isValid = await bcrypt.compare(credentials.password, user.passwordHash)
+            console.log('Password valid:', isValid)
             if (isValid) {
               return {
                 id: user._id,
@@ -50,6 +53,7 @@ export const authOptions: NextAuthOptions = {
             credentials.email === process.env.ADMIN_EMAIL &&
             credentials.password === process.env.ADMIN_PASSWORD_PLAINTEXT
           ) {
+            console.log('Using env var admin login')
             return {
               id: '1',
               email: credentials.email,
